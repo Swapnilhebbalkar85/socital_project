@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mahesh G Traders - Order Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --success-color: #16a34a;
+            --danger-color: #dc2626;
+            --background-color: #f8fafc;
+            --card-background: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: var(--card-background);
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--text-primary);
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            font-weight: 700;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group.persistent {
+            background-color: #f0f9ff;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #bae6fd;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        input, select {
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .button-group {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+
+        .add-btn {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .submit-btn {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .clear-btn {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 2rem;
+            background: var(--card-background);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .delete-btn {
+            background: var(--danger-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+        }
+
+        tfoot td {
+            font-weight: 700;
+            background: #f8fafc;
+        }
+
+        #result {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        #result.valid {
+            color: var(--success-color);
+        }
+
+        #result.invalid {
+            color: var(--danger-color);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            form {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lora:400,400i,700,700i&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Amatic+SC:400,700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/css/open-iconic-bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/animate.css">
+    
+    <link rel="stylesheet" href="/static/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="/static/css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="/static/css/magnific-popup.css">
+
+    <link rel="stylesheet" href="/static/css/aos.css">
+
+    <link rel="stylesheet" href="/static/css/ionicons.min.css">
+
+    <link rel="stylesheet" href="/static/css/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="/static/css/jquery.timepicker.css">
+
+    
+    <link rel="stylesheet" href="/static/css/flaticon.css">
+    <link rel="stylesheet" href="/static/css/icomoon.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+        
+        <form id="orderForm" method="post" action="{% url 'save_order' %}">
+            {% csrf_token %}
+            
+            <div class="form-group persistent">
+                <label>Date:</label>
+                <input type="date" name="date" required>
+            </div>
+
+            <div class="form-group persistent">
+                <label>Vendor:</label>
+                <select name="vendor" id="vendorDropdown" required>
+                    <option value="">Select Vendor</option>
+                    {% for vendor in save_vendor %}
+                        <option value="{{ vendor.name }}">{{ vendor.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group persistent">
+                <label>Vehicle Number:</label>
+                <input
+                    type="text"
+                    id="vehicleNumber"
+                    name="vehicle_number"
+                    placeholder="e.g., MH12AB1234"
+                    maxlength="10"
+                    required
+                />
+                <p id="result"></p>
+            </div>
+
+            <div class="form-group">
+                <label>Vegetable Name:</label>
+                <input type="text" name="vegetable_name" required>
+            </div>
+
+            <div class="form-group">
+                <label>Price:</label>
+                <input type="number" name="price" required>
+            </div>
+
+            <div class="form-group">
+                <label>Quantity:</label>
+                <input type="number" name="quantity" required>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="clear-btn" onclick="clearPersistentFields()">Clear Saved Fields</button>
+                <button type="button" class="add-btn" onclick="addOrder()">Add Order</button>
+                <button type="button" class="submit-btn" onclick="submitOrders()">Submit</button>
+                <button onclick="goBackHome()" class="add-btn">Back to Home</button>
+
+            </div>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Vendor</th>
+                    <th>Vehicle Number</th>
+                    <th>Vegetable Name</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="orderTable"></tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="6"><strong>Subtotal:</strong></td>
+                    <td id="subtotal">0</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <script>
+     function goBackHome() {
+        window.location.href = "/home";  // Redirects to the home page
+    }
+        let orders = [];
+
+        // Load persistent fields on page load
+        window.addEventListener('load', function() {
+            const date = localStorage.getItem('orderDate');
+            const vendor = localStorage.getItem('orderVendor');
+            const vehicleNumber = localStorage.getItem('orderVehicleNumber');
+
+            if (date) document.querySelector('[name="date"]').value = date;
+            if (vendor) document.querySelector('[name="vendor"]').value = vendor;
+            if (vehicleNumber) {
+                document.querySelector('[name="vehicle_number"]').value = vehicleNumber;
+                validateVehicleNumber(vehicleNumber);
+            }
+        });
+
+        function savePersistentFields(date, vendor, vehicleNumber) {
+            localStorage.setItem('orderDate', date);
+            localStorage.setItem('orderVendor', vendor);
+            localStorage.setItem('orderVehicleNumber', vehicleNumber);
+        }
+
+        function clearPersistentFields() {
+            localStorage.removeItem('orderDate');
+            localStorage.removeItem('orderVendor');
+            localStorage.removeItem('orderVehicleNumber');
+            document.querySelector('[name="date"]').value = '';
+            document.querySelector('[name="vendor"]').value = '';
+            document.querySelector('[name="vehicle_number"]').value = '';
+            document.getElementById('result').textContent = '';
+            document.getElementById('result').className = '';
+        }
+
+        function addOrder() {
+            let date = document.querySelector('[name="date"]').value;
+            let vendor = document.querySelector('[name="vendor"]').value;
+            let vehicleNumber = document.querySelector('[name="vehicle_number"]').value;
+            let vegetableName = document.querySelector('[name="vegetable_name"]').value;
+            let price = parseFloat(document.querySelector('[name="price"]').value);
+            let quantity = parseFloat(document.querySelector('[name="quantity"]').value);
+            let total = price * quantity;
+
+            if (!date || !vendor || !vehicleNumber || !vegetableName || !price || !quantity) {
+                alert("Please fill out all fields before adding an order.");
+                return;
+            }
+            if (price <= 0 || quantity <= 0) {
+                alert("Price and Quantity must be greater than zero.");
+                return;
+            }
+
+            // Save persistent fields
+            savePersistentFields(date, vendor, vehicleNumber);
+
+            let table = document.getElementById('orderTable');
+            let row = table.insertRow();
+            row.innerHTML = `
+                <td>${date}</td>
+                <td>${vendor}</td>
+                <td>${vehicleNumber}</td>
+                <td>${vegetableName}</td>
+                <td>${price.toFixed(2)}</td>
+                <td>${quantity}</td>
+                <td class="total">${total.toFixed(2)}</td>
+                <td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td>
+            `;
+
+            orders.push({ date, vendor, vehicle_number: vehicleNumber, vegetable_name: vegetableName, price, quantity, total });
+
+            // Only reset non-persistent fields
+            document.querySelector('[name="vegetable_name"]').value = '';
+            document.querySelector('[name="price"]').value = '';
+            document.querySelector('[name="quantity"]').value = '';
+            
+            updateSubtotal();
+        }
+
+        function deleteRow(btn) {
+            let row = btn.parentElement.parentElement;
+            let index = row.rowIndex - 1;
+            orders.splice(index, 1);
+            row.remove();
+            updateSubtotal();
+        }
+
+        function updateSubtotal() {
+            let totalCells = document.querySelectorAll(".total");
+            let subtotal = 0;
+            totalCells.forEach(cell => {
+                subtotal += parseFloat(cell.innerText);
+            });
+            document.getElementById("subtotal").innerText = subtotal.toFixed(2);
+        }
+
+        function submitOrders() {
+            if (orders.length === 0) {
+                alert("Please add at least one order before submitting.");
+                return;
+            }
+
+            let form = document.createElement('form');
+            form.method = 'post';
+            form.action = '/save_order/';
+            form.style.display = 'none';
+
+            let csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = document.querySelector('[name="csrfmiddlewaretoken"]').value;
+            form.appendChild(csrfInput);
+
+            orders.forEach((order, index) => {
+                Object.keys(order).forEach(key => {
+                    let input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = `${key}[]`;
+                    input.value = order[key];
+                    form.appendChild(input);
+                });
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        function validateVehicleNumber(value) {
+            const vehicleRegex = /^[A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{4}$/;
+            const result = document.getElementById("result");
+
+            if (vehicleRegex.test(value)) {
+                result.textContent = "Valid Format!";
+                result.className = "valid";
+            } else {
+                result.textContent = "Invalid Format!";
+                result.className = "invalid";
+            }
+        }
+
+        const vehicleInput = document.getElementById("vehicleNumber");
+        vehicleInput.addEventListener("input", function () {
+            this.value = this.value.toUpperCase();
+            validateVehicleNumber(this.value);
+        });
+
+        document.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                addOrder();
+            }
+            
+        });
+        
+    </script>
+</body>
+</html>

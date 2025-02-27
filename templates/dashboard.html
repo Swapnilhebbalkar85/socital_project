@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f8f9fa;
+        }
+        h2 {
+            color: #343a40;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .summary {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .summary div {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+            text-transform: uppercase;
+        }
+        td {
+            color: #495057;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Dashboard</h2>
+
+    <!-- Summary Section -->
+    <div class="summary">
+    
+    <div>Total Sales: ₹<span>{{ total_sales }}</span></div>
+    <div>Total Vendor Amount: ₹<span>{{ total_vendor_amount }}</span></div>
+    <div>Profit: ₹<span>{{ balance }}</span></div>  <!-- Display balance -->
+</div>
+    <!-- Order List -->
+    <h3>Vegetable Orders</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Vehicle Number</th>
+                <th>Vegetable Name</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th>Vendor</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.date }}</td>
+                <td>{{ order.vehicle_number }}</td>
+                <td>{{ order.vegetable_name }}</td>
+                <td>₹{{ order.price }}</td>
+                <td>{{ order.quantity }}</td>
+                <td>₹{{ order.total }}</td>
+                <td>{{ order.vendor.name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Vendor List -->
+    <h3>Vendors</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Contact</th>
+            <th>Vegetable Name</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for vendor in vendors %}
+        <tr>
+            <td>{{ vendor.name }}</td>
+            <td>{{ vendor.contact }}</td>
+            <td>{{ vendor.v_vegetable_name }}</td>
+            <td>₹{{ vendor.v_price }}</td>
+            <td>{{ vendor.v_quantity }}</td>
+            <td>₹{{ vendor.v_total }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+    <!-- Home Button -->
+    <a href="/home" class="btn">Back to Home</a>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let totalSales = 0;
+        let totalOrders = document.querySelectorAll("tbody tr").length;
+
+        document.querySelectorAll("tbody tr").forEach(row => {
+            let totalValue = parseFloat(row.children[5].innerText.replace("₹", "")) || 0;
+            totalSales += totalValue;
+        });
+
+        document.getElementById("totalOrders").innerText = totalOrders;
+        document.getElementById("totalSales").innerText = totalSales.toFixed(2);
+    });
+    
+    function loadVendors() {
+        fetch('/get_vendors/')  // Adjust this URL as per your Django route
+        .then(response => response.json())
+        .then(data => {
+            let tableBody = document.querySelector("#vendorTable tbody");
+            tableBody.innerHTML = "";  // Clear existing data
+
+            data.forEach(vendor => {
+                let row = `
+                    <tr>
+                        <td>${vendor.name}</td>
+                        <td>${vendor.contact}</td>
+                        <td>${vendor.v_vegetable_name}</td>
+                        <td>${vendor.v_price}</td>
+                        <td>${vendor.v_quantity}</td>
+                        <td>${vendor.v_total}</td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        })
+        .catch(error => console.error('Error fetching vendors:', error));
+    }
+</script>
+
+
+</body>
+</html>

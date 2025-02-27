@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vegetable Order Management</title>
+    <style>
+     /* General Styling */
+body { 
+    font-family: Arial, sans-serif; 
+    margin: 20px; 
+    background-color: #f8f9fa; 
+}
+
+h2 { 
+    color: #343a40; 
+    text-align: center; 
+    margin-bottom: 10px; 
+}
+
+h2 span { 
+    font-size: 16px; 
+    display: block; 
+    margin-top: 5px; 
+    color: #6c757d; 
+}
+
+/* Form Section */
+#filterSection { 
+    margin-bottom: 20px; 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; /* Space between elements */
+    background: white; 
+    padding: 10px; 
+    border-radius: 5px; 
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); 
+}
+
+#filterSection label, 
+#filterSection button { 
+    display: inline-block; 
+}
+
+#filterDate { 
+    padding: 15px; 
+    border: 1px solid #ccc; 
+    border-radius: 4px; 
+}
+
+button { 
+    background-color: #007bff; 
+    color: white; 
+    padding: 8px 15px; 
+    border: none; 
+    cursor: pointer; 
+    border-radius: 4px; 
+}
+
+button:hover { 
+    background-color: #0056b3; 
+}
+
+/* Table Styling */
+table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    margin-top: 20px; 
+    background-color: white; 
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); 
+}
+
+th, td { 
+    border: 1px solid #dee2e6; 
+    padding: 10px; 
+    text-align: left; 
+}
+
+th { 
+    background-color: #007bff; 
+    color: white; 
+    text-transform: uppercase; 
+}
+
+td { 
+    color: #495057; 
+}
+
+/* Sub Total Styling */
+tfoot { 
+    background-color: #f2f2f2; 
+    font-weight: bold; 
+}
+
+#subTotal { 
+    color: #28a745; 
+}
+
+/* Print Styling */
+@media print {
+    #filterSection, #printBtn { 
+        display: none; 
+    }
+
+    #timestamp {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        font-size: 14px;
+        color: #6c757d;
+    }
+
+    th { 
+        background-color: #444 !important; 
+        color: white !important; 
+    }
+}
+    </style>
+    <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lora:400,400i,700,700i&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Amatic+SC:400,700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/css/open-iconic-bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/animate.css">
+    
+    <link rel="stylesheet" href="/static/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="/static/css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="/static/css/magnific-popup.css">
+
+    <link rel="stylesheet" href="/static/css/aos.css">
+
+    <link rel="stylesheet" href="/static/css/ionicons.min.css">
+
+    <link rel="stylesheet" href="/static/css/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="/static/css/jquery.timepicker.css">
+
+    
+    <link rel="stylesheet" href="/static/css/flaticon.css">
+    <link rel="stylesheet" href="/static/css/icomoon.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <h2><a class="navbar-brand " href="index.html" style="font-size:35px">Mahesh G Traders</a> <br>
+        <span style="font-size:16px">APMC Yard Block:B, Shop No:7 Beside Police Quarters Kangrali(KH)</span>
+    </h2>
+
+    <!-- Date Filter Section -->
+    <div id="filterSection">
+        <label>Filter by Date: <input type="date" id="filterDate"></label>
+        <button onclick="filterOrders()">Filter Orders</button>
+        <button id="printBtn" onclick="printPage()">Print</button> 
+        
+<!-- Print Button -->
+    </div>
+
+    <!-- Orders Table -->
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Vehicle Number</th>
+                <th>Vegetable Name</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody id="orderTable">
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.date }}</td>
+                <td>{{ order.vehicle_number }}</td>
+                <td>{{ order.vegetable_name }}</td>
+                <td>{{ order.price }}</td>
+                <td>{{ order.quantity }}</td>
+                <td class="totalValue">{{ order.total }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5" style="text-align:right; font-weight:bold;">Sub Total:</td>
+                <td id="subTotal">0</td>
+            </tr>
+        </tfoot>
+    </table>
+    <button onclick="goBackHome()">Back to Home</button>
+
+
+    <!-- Timestamp for print -->
+    <p id="timestamp"></p>
+
+    <script>
+  
+
+
+     function goBackHome() {
+        window.location.href = "/home";  
+    }
+        function filterOrders() {
+            let selectedDate = document.getElementById("filterDate").value;
+            if (selectedDate) {
+                window.location.href = `/filter_orders/?date=${selectedDate}`;
+            }
+        }
+
+        function calculateSubTotal() {
+            let totalCells = document.querySelectorAll(".totalValue");
+            let subTotal = 0;
+            totalCells.forEach(cell => {
+                subTotal += parseFloat(cell.innerText) || 0;
+            });
+            document.getElementById("subTotal").innerText = subTotal.toFixed(2);
+        }
+
+        // Function to print the page
+        function printPage() {
+    let orderTable = document.getElementById("orderTable");
+    let rows = orderTable.getElementsByTagName("tr");
+
+    if (rows.length === 0) {
+        alert("Nothing to print. The table is empty.");
+        return;
+    }
+
+    let timestamp = new Date().toLocaleString();
+    document.getElementById("timestamp").innerText = "Printed on: " + timestamp;
+    window.print();
+}
+calculateSubTotal()
+    </script>
+</body>
+</html>

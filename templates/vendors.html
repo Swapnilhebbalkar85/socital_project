@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Management</title>
+    <style>
+       /* General Styling */
+body { 
+    font-family: 'Arial', sans-serif; 
+    margin: 20px; 
+    background-color: #f4f7f9; 
+    color: #333;
+}
+
+h2 { 
+    color: #343a40; 
+    text-align: center; 
+    margin-bottom: 20px; 
+}
+
+/* Form Section */
+.form-container { 
+    background: #fff; 
+    padding: 25px; 
+    border-radius: 8px; 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
+    margin-bottom: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.form-container label {
+    display: block;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+input { 
+    width: 100%; 
+    padding: 10px; 
+    margin-top: 5px; 
+    border: 1px solid #ccc; 
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+/* Buttons */
+.btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-right: 25px;
+    margin-top: 18px;
+    transition: background 0.3s;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+/* Table Styling */
+table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    margin-top: 20px; 
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+th, td { 
+    border: 1px solid #dee2e6; 
+    padding: 12px; 
+    text-align: left; 
+}
+
+th { 
+    background-color: #007bff; 
+    color: white; 
+    text-transform: uppercase; 
+}
+
+td { 
+    color: #495057; 
+}
+
+tfoot {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+/* Status Button */
+.status-btn {
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.status-btn.unpaid {
+    background-color: red;
+    color: white;
+}
+
+.status-btn.paid {
+    background-color: green;
+    color: white;
+}
+
+/* Delete Button */
+button {
+    background-color: #dc3545;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: #bd2130;
+}
+
+/* Subtotal Styling */
+#subTotal {
+    color: #28a745;
+    font-size: 18px;
+}
+
+
+        
+        .valid { color: green; }
+        .invalid { color: red; }
+    
+    </style>
+</head>
+<body>
+
+    <h2>Vendor Management</h2>
+
+    <!-- Vendor Form -->
+    <div class="form-container">
+        <form id="vendorForm" method="post" action="{% url 'save_vendor' %}">
+            {% csrf_token %}
+            <label>Vendor Name: <input type="text" name="name" required></label>
+            <label for="mobileNumber">Enter Mobile Number:</label>
+            <input type="text" id="contact" maxlength="10" name="contact">
+            <p id="result"></p>
+            <label>Vegetable Name: <input type="text" name="v_vegetable_name" required></label>
+            <label>Price: <input type="number" name="v_price" required></label>
+            <label>Quantity: <input type="number" name="v_quantity" required></label>
+            <button type="button" class="btn" onclick="addVendor()">Add Vendor</button>
+            <button type="submit" class="btn">Submit</button>
+            <button onclick="goBackHome()"class="btn">Back to Home</button>
+
+        </form>
+    </div>
+
+    <!-- Vendor Table -->
+    <table>
+        <thead>
+            <tr>
+                <th>Vendor Name</th>
+                <th>Contact</th>
+                <th>Vegetable Name</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th>Payment Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="vendorTable">
+            {% for vendor in vendors %}
+            <tr>
+                <td>{{ vendor.name }}</td>
+                <td>{{ vendor.contact }}</td>
+                <td>{{ vendor.v_vegetable_name }}</td>
+                <td>{{ vendor.v_price }}</td>
+                <td>{{ vendor.v_quantity }}</td>
+                <td class="totalValue">{{ vendor.v_total }}</td>
+                <td>
+                    <button class="status-btn" onclick="togglePaymentStatus(this)">Unpaid</button>
+                </td>
+                <td>
+                   
+                    <button onclick="deleteRow(this, {{ vendor.id }})">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="6" style="text-align:right; font-weight:bold;">Sub Total:</td>
+                <td id="subTotal">0</td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <script>
+     function goBackHome() {
+        window.location.href = "/home";  
+    }
+      const mobileInput = document.getElementById("contact");
+        const result = document.getElementById("result");
+
+        mobileInput.addEventListener("input", function () {
+            // Regular expression for Indian mobile number validation
+            const mobileRegex = /^[6-9]\d{9}$/;
+
+            // Validate the input
+            if (mobileRegex.test(this.value)) {
+                result.textContent = "Valid Mobile Number!";
+                result.className = "valid";
+            } else {
+                result.textContent = "Invalid Mobile Number!";
+                result.className = "invalid";
+            }
+        });
+
+        document.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                console.log("Enter key pressed!");
+            }
+        });
+    
+        // Function to add a vendor
+        function addVendor() {
+            let name = document.querySelector('[name="name"]').value;
+            let contact = document.querySelector('[name="contact"]').value;
+            let vegetableName = document.querySelector('[name="v_vegetable_name"]').value;
+            let price = parseFloat(document.querySelector('[name="v_price"]').value);
+            let quantity = parseFloat(document.querySelector('[name="v_quantity"]').value);
+
+            if (!name || !contact || !vegetableName || isNaN(price) || isNaN(quantity) || price <= 0 || quantity <= 0) {
+                alert(" Please enter valid details!");
+                return;
+            }
+
+            let total = price * quantity;
+            let table = document.getElementById('vendorTable');
+            let row = table.insertRow();
+
+            row.innerHTML = `<td>${name}</td>
+                            <td>${contact}</td>
+                            <td>${vegetableName}</td>
+                            <td>${price}</td>
+                            <td>${quantity}</td>
+                            <td class="totalValue">${total.toFixed(2)}</td>
+                            <td>
+                                <button class="status-btn" onclick="togglePaymentStatus(this)">Unpaid</button>
+                            </td>
+                            <td>
+                                <button onclick="deleteRow(this)">Delete</button>
+                            </td>`;
+
+            calculateSubTotal();
+        }
+
+        // Function to delete a row
+        function deleteRow(btn) {
+            let row = btn.parentElement.parentElement;
+            row.remove();
+            calculateSubTotal();
+        }
+
+        // Function to toggle payment status and adjust subtotal
+        function togglePaymentStatus(button) {
+            let totalElement = button.parentElement.previousElementSibling;
+            let totalAmount = parseFloat(totalElement.innerText);
+
+            let subTotalElement = document.getElementById("subTotal");
+            let subTotal = parseFloat(subTotalElement.innerText) || 0;
+
+            if (button.classList.contains("paid")) {
+                // Mark as Unpaid
+                button.classList.remove("paid");
+                button.style.backgroundColor = "red";
+                button.innerText = "Unpaid";
+                subTotal += totalAmount; // Add back amount to subtotal
+            } else {
+                // Mark as Paid
+                button.classList.add("paid");
+                button.style.backgroundColor = "green";
+                button.innerText = "Paid";
+                subTotal -= totalAmount; // Deduct amount from subtotal
+            }
+
+            subTotalElement.innerText = subTotal.toFixed(2);
+        }
+
+        // Function to calculate subtotal
+        function calculateSubTotal() {
+            let totalCells = document.querySelectorAll(".totalValue");
+            let subTotal = 0;
+
+            totalCells.forEach(cell => {
+                let row = cell.parentElement;
+                let paymentButton = row.querySelector(".status-btn");
+
+                if (!paymentButton.classList.contains("paid")) {
+                    subTotal += parseFloat(cell.innerText) || 0;
+                }
+            });
+
+            document.getElementById("subTotal").innerText = subTotal.toFixed(2);
+        }
+
+        // Calculate subtotal on page load
+        window.onload = calculateSubTotal;
+
+
+
+
+        
+    </script>
+
+</body>
+</html>
