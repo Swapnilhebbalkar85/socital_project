@@ -243,16 +243,23 @@
                 <label>Date:</label>
                 <input type="date" name="date" required>
             </div>
+<div class="form-group persistent">
+    <label>Vendor:</label>
+    <select name="vendor" id="vendorDropdown" required onchange="updateVegetableName()">
+        <option value="">Select Vendor</option>
+        {% for vendor in save_vendor %}
+            <option value="{{ vendor.name }}" data-vegetable="{{ vendor.v_vegetable_name }}">
+                {{ vendor.name }}
+            </option>
+        {% endfor %}
 
-            <div class="form-group persistent">
-                <label>Vendor:</label>
-                <select name="vendor" id="vendorDropdown" required>
-                    <option value="">Select Vendor</option>
-                    {% for vendor in save_vendor %}
-                        <option value="{{ vendor.name }}">{{ vendor.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+    </select>
+</div>
+
+<div class="form-group">
+    <label>Vegetable Name:</label>
+    <input type="text" name="vegetable_name" id="vegetableName" required readonly>
+</div>
 
             <div class="form-group persistent">
                 <label>Vehicle Number:</label>
@@ -267,11 +274,7 @@
                 <p id="result"></p>
             </div>
 
-            <div class="form-group">
-                <label>Vegetable Name:</label>
-                <input type="text" name="vegetable_name" required>
-            </div>
-
+           
             <div class="form-group">
                 <label>Price:</label>
                 <input type="number" name="price" required>
@@ -316,6 +319,24 @@
     </div>
 
     <script>
+    function updateVegetableName() {
+    let vendorDropdown = document.getElementById("vendorDropdown");
+
+    let vegetableNameField = document.getElementById("vegetableName");
+  
+    // Get selected vendor option
+    let selectedOption = vendorDropdown.options[vendorDropdown.selectedIndex];
+    
+    // Get vegetable name from the data attribute
+    let vegetableName = selectedOption.getAttribute("data-vegetable");
+   
+    // Set the vegetable name in the input field
+    vegetableNameField.value = vegetableName || "";
+    v_price.value = price || "";
+    v_quantity.value = quantity || "";
+  
+}
+
      function goBackHome() {
         window.location.href = "/home";  // Redirects to the home page
     }

@@ -11,8 +11,9 @@ urlpatterns = [
     path('home/vendors.html',views.vendors,name="vendors"),
     path("save_vendor/", views.save_vendor, name="save_vendor"),
     path('filter_orders/',views.filter_orders,name="filter_orders"),
-    path('registration',views.registration,name="registration"),
+    path('registration/',views.registration,name="registration"),
     path('home/login2.html',views.login2,name="login"),
     path('home/dashboard.html', views.dashboard, name='dashboard'),
-    
+    path('delete_vendor/<int:vendor_id>/', views.delete_vendor, name='delete_vendor'),
+    path('update_payment_status/<int:vendor_id>/', views.update_payment_status, name='update_payment_status'),
 ]
