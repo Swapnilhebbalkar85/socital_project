@@ -11,7 +11,7 @@ admin.site.register(Register)
 
 @admin.register(vendor)
 class vendorAdmin(admin.ModelAdmin):
-    list_display = ('name', 'v_total','id')
+    list_display = ('name', 'v_total','id','payment_status')
     ordering = ('name',)
     search_fields = ('name', 'v_total')
 

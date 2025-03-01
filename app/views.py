@@ -6,6 +6,12 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from .models import mgt, date as DateModel, vendor
+from django.shortcuts import render, redirect
+from .models import Register  
+from django.contrib.auth.hashers import check_password 
+from django.shortcuts import render, redirect
+from .models import Register  
+from django.contrib.auth.hashers import make_password 
 
 
 def save_order(request):
@@ -150,53 +156,50 @@ def update_payment_status(request, vendor_id):
     vendor_obj.save()  # Save changes in the database
     return redirect("vendors")  # Reload the page
 
-from django.shortcuts import render, redirect
-from .models import Register  # Ensure the model is correct
-from django.contrib.auth.hashers import check_password  # For password validation
+
+ # For password validation
 
 def login2(request):
-    error_message = None
+    error = None  # Initialize error message
     
     if request.method == "POST":
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        # Check if user exists
-        user = Register.objects.filter(username=username,password=password).first()
+        # Check if user exists in the database
+        user = Register.objects.filter(username=username).first()
 
         if not user:
-            error_message = "User not registered. Please register first!"
+            error = "User not registered. Please register first!"
         elif not check_password(password, user.password):  # Verify password
-            error_message = "Invalid username or password!"
+            error = "Invalid username or password!"
         else:
-            
-            User.objects.create(username=username) 
-        return redirect('home') # Redirect if login successful
+            hashed_password = make_password(password)  # Securely hash the password
+            User.objects.create(username=username, password=hashed_password)
+            return redirect('home')  # Redirect if login successful
 
-    return render(request, 'login2.html', {'error': error_message})
-
-
+    return render(request, 'login2.html', {'error': error})
 
 
-from django.shortcuts import render, redirect
-from .models import Register  # Ensure this model exists
-from django.contrib.auth.hashers import make_password  # Secure password storage
+
+ # Secure password storage
 
 def registration(request):
-    error_message = None  # To display errors
+    error_message = None  
 
     if request.method == "POST":
         username = request.POST.get('username')
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
 
-        if password != confirm_password:
-            error_message = "Passwords do not match!"
+        if not username or not password or not confirm_password:
+            error_message = "All fields are required!"
         elif Register.objects.filter(username=username).exists():
             error_message = "Username already taken!"
-        elif username and password:
-            hashed_password = make_password(password)  # Securely hash the password
+        elif password != confirm_password:
+            error_message = "Passwords do not match!"
+        else:
+            hashed_password = make_password(password)  
             Register.objects.create(username=username, password=hashed_password)
-            return redirect('login2')  # Ensure this URL name exists in urls.py
-
+            return redirect('login2')  
     return render(request, 'registration.html', {'error_message': error_message})

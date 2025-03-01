@@ -11,7 +11,10 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f4f4f4;
+            background : url('/static/images/logo-png.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
         }
         .container {
             background: white;
@@ -51,19 +54,7 @@
             font-size: 14px;
         }
     </style>
-    <script>
-        function togglePassword() {
-            var passwordField = document.getElementById("password");
-            var confirmPasswordField = document.getElementById("confirm_password");
-            if (passwordField.type === "password") {
-                passwordField.type = "text";
-                confirmPasswordField.type = "text";
-            } else {
-                passwordField.type = "password";
-                confirmPasswordField.type = "password";
-            }
-        }
-    </script>
+   
 </head>
 <body>
     <div class="container">
@@ -83,5 +74,18 @@
             <button type="submit">Register</button>
         </form>
     </div>
+     <script>
+        function togglePassword() {
+            var passwordField = document.getElementById("password");
+            var confirmPasswordField = document.getElementById("confirm_password");
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                confirmPasswordField.type = "text";
+            } else {
+                passwordField.type = "password";
+                confirmPasswordField.type = "password";
+            }
+        }
+    </script>
 </body>
 </html>

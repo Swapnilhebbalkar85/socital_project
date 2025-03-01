@@ -30,6 +30,7 @@
             line-height: 1.5;
             min-height: 100vh;
             padding: 2rem;
+         
         }
 
         .container {
@@ -243,25 +244,8 @@
                 <label>Date:</label>
                 <input type="date" name="date" required>
             </div>
-<div class="form-group persistent">
-    <label>Vendor:</label>
-    <select name="vendor" id="vendorDropdown" required onchange="updateVegetableName()">
-        <option value="">Select Vendor</option>
-        {% for vendor in save_vendor %}
-            <option value="{{ vendor.name }}" data-vegetable="{{ vendor.v_vegetable_name }}">
-                {{ vendor.name }}
-            </option>
-        {% endfor %}
 
-    </select>
-</div>
-
-<div class="form-group">
-    <label>Vegetable Name:</label>
-    <input type="text" name="vegetable_name" id="vegetableName" required readonly>
-</div>
-
-            <div class="form-group persistent">
+              <div class="form-group persistent">
                 <label>Vehicle Number:</label>
                 <input
                     type="text"
@@ -273,23 +257,44 @@
                 />
                 <p id="result"></p>
             </div>
+            
+<div class="form-group persistent">
+    <label>Vendor:</label>
+    <select name="vendor" id="vendorDropdown" required onchange="updateVegetableDetails()">
+        <option value="">Select Vendor</option>
+        {% for vendor in save_vendor %}
+            <option value="{{ vendor.name }}" 
+                    data-vegetable="{{ vendor.v_vegetable_name }}"
+                    data-price="{{ vendor.v_price }}"
+                    data-quantity="{{ vendor.v_quantity }}">
+                {{ vendor.name }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
 
-           
-            <div class="form-group">
-                <label>Price:</label>
-                <input type="number" name="price" required>
-            </div>
+<div class="form-group">
+    <label>Vegetable Name:</label>
+    <input type="text" id="vegetableName" readonly>
+</div>
 
-            <div class="form-group">
-                <label>Quantity:</label>
-                <input type="number" name="quantity" required>
-            </div>
+<div class="form-group">
+    <label>Price:</label>
+    <input type="text" id="v_price" >
+</div>
+
+<div class="form-group">
+    <label>Quantity:</label>
+    <input type="text" id="v_quantity" >
+</div>
+
 
             <div class="button-group">
                 <button type="button" class="clear-btn" onclick="clearPersistentFields()">Clear Saved Fields</button>
                 <button type="button" class="add-btn" onclick="addOrder()">Add Order</button>
                 <button type="button" class="submit-btn" onclick="submitOrders()">Submit</button>
-                <button onclick="goBackHome()" class="add-btn">Back to Home</button>
+                <button type="button" class="add-btn" onclick="goBackHome()">Back to Home</button>
+
 
             </div>
         </form>
@@ -319,29 +324,33 @@
     </div>
 
     <script>
-    function updateVegetableName() {
-    let vendorDropdown = document.getElementById("vendorDropdown");
-
-    let vegetableNameField = document.getElementById("vegetableName");
-  
-    // Get selected vendor option
-    let selectedOption = vendorDropdown.options[vendorDropdown.selectedIndex];
-    
-    // Get vegetable name from the data attribute
-    let vegetableName = selectedOption.getAttribute("data-vegetable");
-   
-    // Set the vegetable name in the input field
-    vegetableNameField.value = vegetableName || "";
-    v_price.value = price || "";
-    v_quantity.value = quantity || "";
-  
-}
-
-     function goBackHome() {
+      function goBackHome() {
         window.location.href = "/home";  // Redirects to the home page
     }
         let orders = [];
 
+   function updateVegetableDetails() {
+    let vendorDropdown = document.getElementById("vendorDropdown");
+    let vegetableNameField = document.getElementById("vegetableName");
+    let priceField = document.getElementById("v_price");
+    let quantityField = document.getElementById("v_quantity");
+
+    // Get selected vendor option
+    let selectedOption = vendorDropdown.options[vendorDropdown.selectedIndex];
+
+    // Get values from data attributes
+    let vegetableName = selectedOption.getAttribute("data-vegetable");
+    let price = selectedOption.getAttribute("data-price");
+    let quantity = selectedOption.getAttribute("data-quantity");
+
+    // Set values in input fields
+    vegetableNameField.value = vegetableName || "";
+    priceField.value = price || "";
+    quantityField.value = quantity || "";
+}
+
+
+   
         // Load persistent fields on page load
         window.addEventListener('load', function() {
             const date = localStorage.getItem('orderDate');
@@ -373,49 +382,49 @@
             document.getElementById('result').className = '';
         }
 
-        function addOrder() {
-            let date = document.querySelector('[name="date"]').value;
-            let vendor = document.querySelector('[name="vendor"]').value;
-            let vehicleNumber = document.querySelector('[name="vehicle_number"]').value;
-            let vegetableName = document.querySelector('[name="vegetable_name"]').value;
-            let price = parseFloat(document.querySelector('[name="price"]').value);
-            let quantity = parseFloat(document.querySelector('[name="quantity"]').value);
-            let total = price * quantity;
+       function addOrder() {
+    let date = document.querySelector('[name="date"]').value;
+    let vendor = document.querySelector('[name="vendor"]').value;
+    let vehicleNumber = document.querySelector('[name="vehicle_number"]').value;
+    let vegetableName = document.getElementById("vegetableName").value; // Corrected
+    let price = parseFloat(document.getElementById("v_price").value);  // Corrected
+    let quantity = parseFloat(document.getElementById("v_quantity").value);  // Corrected
+    let total = price * quantity;
 
-            if (!date || !vendor || !vehicleNumber || !vegetableName || !price || !quantity) {
-                alert("Please fill out all fields before adding an order.");
-                return;
-            }
-            if (price <= 0 || quantity <= 0) {
-                alert("Price and Quantity must be greater than zero.");
-                return;
-            }
+    if (!date || !vendor || !vehicleNumber || !vegetableName || isNaN(price) || isNaN(quantity)) {
+        alert("Please fill out all fields before adding an order.");
+        return;
+    }
+    if (price <= 0 || quantity <= 0) {
+        alert("Price and Quantity must be greater than zero.");
+        return;
+    }
 
-            // Save persistent fields
-            savePersistentFields(date, vendor, vehicleNumber);
+    // Save persistent fields
+    savePersistentFields(date, vendor, vehicleNumber);
 
-            let table = document.getElementById('orderTable');
-            let row = table.insertRow();
-            row.innerHTML = `
-                <td>${date}</td>
-                <td>${vendor}</td>
-                <td>${vehicleNumber}</td>
-                <td>${vegetableName}</td>
-                <td>${price.toFixed(2)}</td>
-                <td>${quantity}</td>
-                <td class="total">${total.toFixed(2)}</td>
-                <td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td>
-            `;
+    let table = document.getElementById('orderTable');
+    let row = table.insertRow();
+    row.innerHTML = `
+        <td>${date}</td>
+        <td>${vendor}</td>
+        <td>${vehicleNumber}</td>
+        <td>${vegetableName}</td>
+        <td>${price.toFixed(2)}</td>
+        <td>${quantity}</td>
+        <td class="total">${total.toFixed(2)}</td>
+        <td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td>
+    `;
 
-            orders.push({ date, vendor, vehicle_number: vehicleNumber, vegetable_name: vegetableName, price, quantity, total });
+    orders.push({ date, vendor, vehicle_number: vehicleNumber, vegetable_name: vegetableName, price, quantity, total });
 
-            // Only reset non-persistent fields
-            document.querySelector('[name="vegetable_name"]').value = '';
-            document.querySelector('[name="price"]').value = '';
-            document.querySelector('[name="quantity"]').value = '';
-            
-            updateSubtotal();
-        }
+    // Reset non-persistent fields
+    document.getElementById("vegetableName").value = '';
+    document.getElementById("v_price").value = '';
+    document.getElementById("v_quantity").value = '';
+    
+    updateSubtotal();
+}
 
         function deleteRow(btn) {
             let row = btn.parentElement.parentElement;

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vendor Management</title>
+    <title>Mahesh G Traders</title>
     <style>
        /* General Styling */
 body { 
@@ -11,6 +11,10 @@ body {
     margin: 20px; 
     background-color: #f4f7f9; 
     color: #333;
+      background : url('/static/images/logo-png.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
 }
 
 h2 { 
@@ -63,7 +67,7 @@ input {
 }
 
 /* Table Styling */
-table { 
+.vendorTable { 
     width: 100%; 
     border-collapse: collapse; 
     margin-top: 20px; 
@@ -138,8 +142,8 @@ button:hover {
 
 
         
-        .valid { color: green; }
-        .invalid { color: red; }
+.valid { color: green; }
+.invalid { color: red; }
 
 
         .status-btn {
@@ -167,7 +171,7 @@ button:hover {
 </head>
 <body>
 
-    <h2>Vendor Management</h2>
+    <h2>Mahesh G Traders</h2>
 
     <!-- Vendor Form -->
     <div class="form-container">
@@ -211,29 +215,37 @@ button:hover {
             <td>{{ vendor.v_price }}</td>
             <td>{{ vendor.v_quantity }}</td>
             <td>{{ vendor.v_total }}</td>
-            <form method="post" action="{% url 'update_payment_status' vendor.id %}">
-        {% csrf_token %}
-        <button type="submit" 
-                class="status-btn {% if vendor.payment_status == 'Paid' %}paid{% else %}unpaid{% endif %}">
-            {{ vendor.payment_status }}
-        </button>
-    </form>
-        <td>
-            <form method="post" action="{% url 'delete_vendor' vendor.id %}">
+            
+            <!-- Payment Status Button -->
+            <td>
+                <form method="post" action="{% url 'update_payment_status' vendor.id %}">
                     {% csrf_token %}
-                    <button type="submit">Delete</button>
+                    <button type="submit" 
+                            class="status-btn {% if vendor.payment_status == 'Paid' %}paid{% else %}unpaid{% endif %}">
+                        {{ vendor.payment_status }}
+                    </button>
                 </form>
-        </td>
-    </tr>
-    {% endfor %}
-     <tfoot>
-            <tr>
-                <td colspan="6" style="text-align:right; font-weight:bold;">Sub Total:</td>
-                <td id="subTotal">0</td>
-                <td></td>
-            </tr>
-        </tfoot>
+            </td>
+            
+            <!-- Delete Button -->
+            <td>
+                <form method="post" action="{% url 'delete_vendor' vendor.id %}">
+                    {% csrf_token %}
+                    <button type="submit" onclick="return confirm('Are you sure you want to delete this vendor?');">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
     </tbody>
+
+    <!-- Subtotal Row -->
+    <tfoot>
+        <tr>
+            <td colspan="6" style="text-align:right; font-weight:bold;">Sub Total:</td>
+            <td id="subTotal">0</td>
+            <td colspan="2"></td>
+        </tr>
+    </tfoot>
 </table>
 
     <script>
@@ -302,55 +314,56 @@ button:hover {
 
 
         // Function to delete a row
-        function deleteRow(btn) {
+function deleteRow(btn) {
             let row = btn.parentElement.parentElement;
             row.remove();
             calculateSubTotal();
         }
 
         // Function to toggle payment status and adjust subtotal
-        function togglePaymentStatus(button) {
-            let totalElement = button.parentElement.previousElementSibling;
-            let totalAmount = parseFloat(totalElement.innerText);
+function togglePaymentStatus(button) {
+    let totalElement = button.parentElement.previousElementSibling; // Get the total column
+    let totalAmount = parseFloat(totalElement.innerText) || 0;
 
-            let subTotalElement = document.getElementById("subTotal");
-            let subTotal = parseFloat(subTotalElement.innerText) || 0;
+    let subTotalElement = document.getElementById("subTotal");
+    let subTotal = parseFloat(subTotalElement.innerText) || 0;
 
-            if (button.classList.contains("paid")) {
-                // Mark as Unpaid
-                button.classList.remove("paid");
-                button.style.backgroundColor = "red";
-                button.innerText = "Unpaid";
-                subTotal += totalAmount; // Add back amount to subtotal
-            } else {
-                // Mark as Paid
-                button.classList.add("paid");
-                button.style.backgroundColor = "green";
-                button.innerText = "Paid";
-                subTotal -= totalAmount; // Deduct amount from subtotal
-            }
+    if (button.classList.contains("paid")) {
+        // Mark as Unpaid → Reduce subtotal
+        button.classList.remove("paid");
+        button.style.backgroundColor = "red";
+        button.innerText = "Unpaid";
+        subTotal -= totalAmount;
+    } else {
+        // Mark as Paid → Increase subtotal
+        button.classList.add("paid");
+        button.style.backgroundColor = "green";
+        button.innerText = "Paid";
+        subTotal += totalAmount;
+    }
 
-            subTotalElement.innerText = subTotal.toFixed(2);
-           
-        }
+    subTotalElement.innerText = subTotal.toFixed(2);
+}
 
-        // Function to calculate subtotal
-    function calculateSubTotal() {
-    let totalCells = document.querySelectorAll("#vendorTable .totalValue"); 
-    let subTotal = 0;
-
-    totalCells.forEach(cell => {
-        let row = cell.parentElement;
-        let paymentButton = row.querySelector(".status-btn");
-
-        // Add only unpaid values
-        if (!paymentButton.classList.contains("paid")) {
-            subTotal += parseFloat(cell.innerText) || 0;
+// Function to calculate subtotal (only for Unpaid)
+function calculateSubtotal() {
+    let total = 0;
+    document.querySelectorAll("#vendorTable tbody tr").forEach(row => {
+        let totalCell = row.cells[6];  // 7th column (index 6)
+        let totalValue = parseFloat(totalCell.innerText) || 0;
+        let statusButton = row.querySelector(".status-btn");
+        
+        // Only add Unpaid totals
+        if (statusButton && statusButton.innerText === "Unpaid") {
+            total += totalValue;
         }
     });
 
-    document.getElementById("subTotal").innerText = subTotal.toFixed(2);
+    document.getElementById("subTotal").innerText = total.toFixed(2);
 }
+
+// Run subtotal calculation after page loads
+window.onload = calculateSubtotal;
 
 
 
