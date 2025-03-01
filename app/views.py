@@ -175,7 +175,7 @@ def login2(request):
             error = "Invalid username or password!"
         else:
             hashed_password = make_password(password)  # Securely hash the password
-            User.objects.create(username=username, password=hashed_password)
+           
             return redirect('home')  # Redirect if login successful
 
     return render(request, 'login2.html', {'error': error})
