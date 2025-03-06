@@ -16,4 +16,5 @@ urlpatterns = [
     path('home/dashboard.html', views.dashboard, name='dashboard'),
     path('delete_vendor/<int:vendor_id>/', views.delete_vendor, name='delete_vendor'),
     path('update_payment_status/<int:vendor_id>/', views.update_payment_status, name='update_payment_status'),
+    
 ]

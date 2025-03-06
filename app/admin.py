@@ -5,6 +5,8 @@ from . models import vendor,User,Register
 
 admin.site.register(date)
 admin.site.register(Register)
+
+
 @admin.register(vendor)
 class vendorAdmin(admin.ModelAdmin):
     list_display = ('name', 'v_total','id','payment_status')

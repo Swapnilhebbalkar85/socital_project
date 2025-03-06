@@ -35,7 +35,7 @@ def save_order(request):
             try:
                 vendor_obj = vendor.objects.get(name=vendors[i])
             except vendor.DoesNotExist:
-                return HttpResponseRedirect("/index2/")  # Redirect if vendor not found
+                return HttpResponseRedirect("/index/")  # Redirect if vendor not found
 
             
             mgt.objects.create(

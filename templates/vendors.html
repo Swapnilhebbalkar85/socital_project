@@ -181,8 +181,9 @@ button:hover {
             <label>Vegetable Name: <input type="text" name="v_vegetable_name" required></label>
             <label>Price: <input type="number" name="v_price" required></label>
             <label>Quantity: <input type="number" name="v_quantity" required></label>
-            {% comment %} <button type="button" class="btn" onclick="addVendor()">Add Vendor</button>  {% endcomment %}
-            <button type="submit" class="btn">Add Vendor</button>
+          {% comment %} <button type="button" class="btn" onclick="addVendor()">Add Vendor</button>  {% endcomment %}
+<button type="submit" class="btn" onclick="return validateForm()">Add Vendor</button>
+
             <button onclick="goBackHome()"class="btn">Back to Home</button>
 
         </form>
@@ -237,15 +238,32 @@ button:hover {
 
     <!-- Subtotal Row -->
     <tfoot>
-        <tr>
-            <td colspan="6" style="text-align:right; font-weight:bold;">Sub Total:</td>
-            <td id="subTotal">0</td>
-            <td colspan="2"></td>
-        </tr>
+           <tr>
+        <td colspan="6" style="text-align:right; font-weight:bold;">Sub Total:</td>
+        <td id="subTotal">0</td>
+        <td colspan="2"></td>
+    </tr>
     </tfoot>
 </table>
 
     <script>
+    function validateForm() {
+    let price = parseFloat(document.querySelector('[name="v_price"]').value);
+    let quantity = parseFloat(document.querySelector('[name="v_quantity"]').value);
+
+    if (isNaN(price) || price <= 0) {
+        alert("Price must be a positive number!");
+        return false;  // Prevent form submission
+    }
+
+    if (isNaN(quantity) || quantity <= 0) {
+        alert("Quantity must be a positive number!");
+        return false;  // Prevent form submission
+    }
+
+    return true;  // Allow form submission if values are valid
+}
+
      function goBackHome() {
         window.location.href = "/home";  
     }
@@ -285,6 +303,10 @@ button:hover {
         alert(" Please enter valid details!");
         return;
     }
+    if(price < 0 || quantity < 0) {
+        alert("Price and Quantity should be greater than 0");
+        return;
+    }
 
     let total = price * quantity;
     let table = document.querySelector("#vendorTable tbody"); // Targeting tbody
@@ -308,9 +330,7 @@ button:hover {
     calculateSubTotal();  // Call after adding row
 }
 
-
-
-        // Function to delete a row
+     // Function to delete a row
 function deleteRow(btn) {
             let row = btn.parentElement.parentElement;
             row.remove();
@@ -323,24 +343,34 @@ function togglePaymentStatus(button) {
     let totalAmount = parseFloat(totalElement.innerText) || 0;
 
     let subTotalElement = document.getElementById("subTotal");
+    let totalVendorAmountElement = document.getElementById("totalVendorAmount"); // Update Vendor Total
     let subTotal = parseFloat(subTotalElement.innerText) || 0;
+    let totalVendorAmount = parseFloat(totalVendorAmountElement.innerText) || 0;
 
     if (button.classList.contains("paid")) {
-        // Mark as Unpaid → Reduce subtotal
+        // Mark as Unpaid → Reduce subtotal, Increase Vendor Amount
         button.classList.remove("paid");
+        button.classList.add("unpaid");
         button.style.backgroundColor = "red";
         button.innerText = "Unpaid";
+
         subTotal -= totalAmount;
+        totalVendorAmount += totalAmount; // Add back to vendor total
     } else {
-        // Mark as Paid → Increase subtotal
+        // Mark as Paid → Increase subtotal, Reduce Vendor Amount
+        button.classList.remove("unpaid");
         button.classList.add("paid");
         button.style.backgroundColor = "green";
         button.innerText = "Paid";
+
         subTotal += totalAmount;
+        totalVendorAmount -= totalAmount; // Remove from vendor total
     }
 
     subTotalElement.innerText = subTotal.toFixed(2);
+    totalVendorAmountElement.innerText = totalVendorAmount.toFixed(2);
 }
+
 
 // Function to calculate subtotal (only for Unpaid)
 function calculateSubtotal() {
