@@ -136,6 +136,27 @@
     </tbody>
 </table>
 
+<h3>Vegetable Stock</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Vegetable Name</th>
+            <th>Quantity in Stock (kg)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for stock in vegetable_stock %}
+            {% if stock.quantity > 0 %}  {# Only display if stock is available #}
+            <tr>
+                <td>{{ stock.vegetable_name }}</td>
+                <td>{{ stock.quantity }}</td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+    </tbody>
+</table>
+
+
     <!-- Home Button -->
     <a href="/home" class="btn">Back to Home</a>
 <script>

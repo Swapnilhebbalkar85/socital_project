@@ -117,15 +117,35 @@ def login2(request):
 def registration(request):
     return render(request,"registration.html")
 
+from django.shortcuts import render
+from collections import defaultdict
+from .models import vendor, mgt  # Import models
 
 def dashboard(request):
     orders = mgt.objects.all()
-    vendors = vendor.objects.all()  
+    vendors = vendor.objects.all()
 
     total_orders = orders.count()
-    total_sales = sum(order.total for order in orders)  # Total Sales from Orders
-    total_vendor_amount = sum(vendor.v_total for vendor in vendors)  # Total Vendor Amount
-    balance = total_sales - total_vendor_amount  # Calculate Balance
+    total_sales = sum(order.total for order in orders)  
+    total_vendor_amount = sum(v.v_total for v in vendors)  
+    balance = total_sales - total_vendor_amount  
+
+    # Stock Calculation
+    stock_dict = defaultdict(int)
+
+    # Add purchased quantities from vendors
+    for v in vendors:
+        stock_dict[v.v_vegetable_name] += v.v_quantity
+
+    # Subtract sold quantities from orders
+    for order in orders:
+        stock_dict[order.vegetable_name] -= order.quantity
+
+    # Convert stock data into a list of dictionaries for template rendering
+    vegetable_stock = [
+        {"vegetable_name": veg, "quantity": max(0, qty)}  # Ensure stock doesn't go negative
+        for veg, qty in stock_dict.items()
+    ]
 
     return render(request, "dashboard.html", {
         "orders": orders,
@@ -133,9 +153,9 @@ def dashboard(request):
         "total_orders": total_orders,
         "total_sales": total_sales,
         "total_vendor_amount": total_vendor_amount,
-        "balance": balance
+        "balance": balance,
+        "vegetable_stock": vegetable_stock  # Pass stock data to template
     })
-
 
 
 def delete_vendor(request, vendor_id):
